@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("ABRA_MESSAGES_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -124,6 +124,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, "static") # Default  
+
+if DEBUG == True: # if the site isn't Deployed yet:
+    STATIC_ROOT  = os.path.join(BASE_DIR, 'mainapp', "static")
+
+if DEBUG == False: # if the site is Deployed:
+    STATIC_ROOT  = os.path.join(BASE_DIR, 'staticfiles')
+
+    
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 

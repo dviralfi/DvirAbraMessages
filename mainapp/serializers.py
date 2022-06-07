@@ -1,32 +1,29 @@
-from rest_framework import serializers
-from mainapp.models import Message,User
-from rest_framework.response import Response
+from mainapp.models import Message
+from rest_framework import serializers 
 
+
+"""
+This is the Serializers file.
+
+In order to send proper JSON formatted data to the clients (as REST API suggests), we need to serialize the data from the Objects/Models/other Python data that we handle in the back-end.
+
+I used the default Serializers Class that 3rd party package rest_framwork(Django Rest Framework) is providing.
+
+"""
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    """
+    A class to Serialize a Message.
+
+    Attributes
+    ----------
+    Modifing the Meta Class from the default inherted ModelSerializer
+    so that the model is set to the custom model - `Message`.
+
+    also inputing the required fields in the Message.
+    """
     class Meta:
         model = Message
-        fields = ['sender', 'receiver', 'message_txt', 'subject', 'creation_date','is_read']
-
-"""
-
-    def create(self, validated_data):
-        ""
-        Create and return a new `Message` instance, with the validated data.
-        ""
-        return Message.objects.create(**validated_data)
-
-    def delete(self, instance):
-        ""
-        Delete an existing `Message` instance, with the validated data.
-        ""
-        if instance.exists():
-            instance.delete()
-            return Response({'data':"Deleted"},status=200)
-        else:
-            message_not_exist_txt = 'Message {} Not Exist'.format(instance)
-            return Response({'data':message_not_exist_txt},status=404)
-        
-
-"""
+        fields = ['sender', 'receiver', 'message_txt', 'subject', 'creation_date']  # `is_read` attribute is not included - it's not required in the data, just for the back-end.
+       

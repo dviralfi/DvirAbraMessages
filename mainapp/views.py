@@ -1,31 +1,53 @@
+"""
+The Views File which contains the views that will execute from the urls endpoints by the RestAPI structure. (see in `mainapp/urls.py`)
+-------------
 
+The decorators in each view function e.g. @api_view(["GET"]),
+is for the view function to accept only specific HTTP Requests.
 
+"""
+
+# Custom Imports
+from mainapp.models import Message, MessageUser # Custom Models
+from mainapp.serializers import MessageSerializer # Custom Serializers
+
+#Django Imports
+from django.core.exceptions import ObjectDoesNotExist 
+
+# Django Rest Framework Imports
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from mainapp.models import Message,User
-from .serializers import MessageSerializer
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework import status
-from django.db.models import Q
-from rest_framework.parsers import JSONParser
+from rest_framework import status # For HTTP statuses
+from rest_framework.permissions import IsAuthenticated # For User Authentication
+
+
+# Basic IsAuthenticated(is the User is logged-in) implementation:
+permission_classes = [IsAuthenticated]
 
 @api_view(["GET"])
 def get_all_messages(request, *args, **kwargs):
+    '''
+    Returns all Messages of the logged-in User.
+
+            Parameters:
+                    request (HTTP Request) : contains various HTTP content 
+                    *args (possible non-keyword arguments)
+                    *kwargs (possible keyword arguments) : contains the username in the endpoint (for example: /user1/messages) user1 is the username)
+
+            Returns:
+                    Json Response (Json): if valid - returns the messages, if not - returns Http-Error Response
+    '''
+
     username = kwargs["username"]
 
-    """
-    all_messages = MessageSerializer(
-
-    Message.objects.filter
-    (
-    Q(sender = User.objects.get(username=username))|
-    Q(receiver = User.objects.get(username=username))
-    )
-    ,many=True
-    )
-    """
-
-    user_object = User.objects.get(username=username)
+    if request.user.username != username:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        user_object = MessageUser.objects.get(username=username)
+    except MessageUser.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND) 
+    
     all_messages = MessageSerializer(user_object.messages.all(),many=True)
 
     return Response(all_messages.data)
@@ -33,13 +55,28 @@ def get_all_messages(request, *args, **kwargs):
 
 @api_view(["GET","DELETE"])
 def message(request, *args, **kwargs):
+    '''
+    Returns specific Message of the logged-in User.
+
+            Parameters:
+                    request (HTTP Request) : contains various HTTP content 
+                    *args (possible non-keyword arguments)
+                    *kwargs (possible keyword arguments) : contains the username and the ID of the message in the endpoint (for example: /user1/messages/3) user1 is the username and 3 is the message ID)
+
+            Returns:
+                    Json Response (Json): if valid - returns the message, if not - returns Http-Error Response
+    '''
+
     id = kwargs['id']
     username = kwargs["username"]
+
+    if request.user.username != username:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     if request.method=='GET':
         
         try:
-            user_object = User.objects.get(username=username)
+            user_object = MessageUser.objects.get(username=username)
             message = user_object.messages.get(id=id)
             message_serializer = MessageSerializer(message)
 
@@ -54,7 +91,7 @@ def message(request, *args, **kwargs):
     elif request.method=='DELETE':
         
         try:
-            user_object = User.objects.get(username=username)
+            user_object = MessageUser.objects.get(username=username)
             message = user_object.messages.get(id=id)
             user_object.messages.remove(message)
             
@@ -64,39 +101,51 @@ def message(request, *args, **kwargs):
             return Response(status=404)
 
 
-
 @api_view(["POST"])
-def write_message(request, format=None, *args, **kwargs):
-    parser_classes = (JSONParser,)
+def write_message(request, *args, **kwargs):
+    '''
+    Send a New Message for the logged-in User.
 
-    print(request.data)
+            Parameters:
+                    request (HTTP Request) : contains various HTTP content, and in particular - 'data' which contains the New Message data to be sent.
+                    *args (possible non-keyword arguments)
+                    *kwargs (possible keyword arguments) : contains the username in the endpoint (for example: /user1/messages) user1 is the username)
 
+            Returns:
+                    Json Response (Json): if valid - returns the New Message that has been sent with a HTTP_201_CREATED status, if not - returns Http-Error Response
+    '''
+    # Gets the essential data
+    username = kwargs["username"]
     receiver_id = request.data['receiver']
     sender_id = request.data['sender']
 
+    # checks if the username that want to send is logged in and the message is not from someone else to himself:
+    if request.user.username != username or request.user.id != sender_id: 
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    #message_serializer = JSONParser.parse(stream=request.data)
-    
+    #de-serialize the message that the user sent(in JSNO format) to Python friendly data - in orser to save it as a Message Model.
     message_serializer = MessageSerializer(data = request.data)
-    #print(message_serializer, type(message_serializer))
-    print(request.data, type(request.data))
     message_dict = request.data
     
-    
     if message_serializer.is_valid():
-        receiver_user_object = User.objects.get(id=receiver_id)
-        sender_user_object = User.objects.get(id=sender_id)
+        # gets the Users Objects
+        receiver_user_object = MessageUser.objects.get(id=receiver_id)
+        sender_user_object = MessageUser.objects.get(id=sender_id)
 
+        #replacing the ID's in the message that the user sent - with actual User Object - for Django to bind it with the coressponding ForiegnKey - MessageUser:
         message_dict["receiver"] = receiver_user_object
         message_dict["sender"] = sender_user_object
 
+        # converts the message dictionary (that it makes by de-serialize the JSON data the user sent) to a Message Object(for saving it in the DB)
         message = Message(**message_dict)
         message.save()
 
-        # Saves the message for the receiver:
+        # Saves the message in the DB for the receiver:
         receiver_user_object.messages.add(message)
 
-        # Saves the message for the sender:
+        # Saves the message in the DB for the sender:
+        message.is_read = True # The sender obviously saw the message..
+        message.save()
         sender_user_object.messages.add(message)
         
         return Response(message_serializer.data, status=status.HTTP_201_CREATED)
@@ -104,12 +153,25 @@ def write_message(request, format=None, *args, **kwargs):
         return Response(message_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @api_view(["GET"])
 def get_unread_messages(request, *args, **kwargs):
+    '''
+    Returns all Unread Messages of the logged-in User.
 
+            Parameters:
+                    request (HTTP Request) : contains various HTTP content 
+                    *args (possible non-keyword arguments)
+                    *kwargs (possible keyword arguments) : contains the username in the endpoint (for example: /user1/messages) user1 is the username)
+
+            Returns:
+                    Json Response (Json): if valid - returns the unread messages, if not - returns Http-Error Response
+    '''
     username = kwargs["username"]
-    user_object = User.objects.get(username=username)
+
+    if request.user.username != username:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    user_object = MessageUser.objects.get(username=username)
     unread_messages = MessageSerializer(user_object.messages.filter(is_read=False), many=True)
         
     return Response(unread_messages.data)

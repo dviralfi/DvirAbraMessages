@@ -8,6 +8,7 @@ is for the view function to accept only specific HTTP Requests.
 """
 
 # Custom Imports
+from unicodedata import name
 from mainapp.models import Message, MessageUser # Custom Models
 from mainapp.serializers import MessageSerializer # Custom Serializers
 
@@ -175,3 +176,19 @@ def get_unread_messages(request, *args, **kwargs):
     unread_messages = MessageSerializer(user_object.messages.filter(is_read=False), many=True)
         
     return Response(unread_messages.data)
+
+
+@api_view(["GET","POST"])
+def create_user(request, *args, **kwargs):
+    if request.method == "GET":
+        return get_all_messages(request,args,kwargs)
+
+    user_dict = request.data
+
+    try:
+
+        user_object = MessageUser.objects.create_user(user_dict)
+        return Response(user_object.username,status=status.HTTP_201_CREATED)
+
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)

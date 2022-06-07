@@ -10,5 +10,6 @@ urlpatterns = [
     path('<str:username>/messages/write/', views.write_message, name='write_message'),# POST
 
     path('<str:username>/messages/unread/', views.get_unread_messages, name='get_unread_messages'), # GET
-    
+
+    path('', views.create_user, name='create_user'), # POST
 ]

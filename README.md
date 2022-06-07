@@ -9,6 +9,8 @@ a message contains :
 3. Message
 4. Subject
 5. creation date
+
+
 The rest API should contains :
 - Write message
 - Get all messages for a specific user

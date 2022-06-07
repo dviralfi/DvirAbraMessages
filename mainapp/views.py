@@ -8,12 +8,12 @@ is for the view function to accept only specific HTTP Requests.
 """
 
 # Custom Imports
-from unicodedata import name
 from mainapp.models import Message, MessageUser # Custom Models
 from mainapp.serializers import MessageSerializer # Custom Serializers
 
 #Django Imports
-from django.core.exceptions import ObjectDoesNotExist 
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 
 # Django Rest Framework Imports
 from rest_framework.response import Response
@@ -227,5 +227,8 @@ def create_user(request, *args, **kwargs):
         user_object = MessageUser.objects.create_user(**user_dict)
         return Response(status=status.HTTP_201_CREATED)
 
-    except:
+    except IntegrityError:
+        return Response(data={"User Name is Already Taken"},status=status.HTTP_409_CONFLICT)
+    except Exception as e:
+        print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)

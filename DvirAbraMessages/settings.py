@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 
-import django_heroku
 from pathlib import Path
 import os
 
@@ -29,7 +28,7 @@ SECRET_KEY = os.environ.get("ABRA_MESSAGES_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["https://dvir-abra-messages.herokuapp.com/","localhost"]
 
 
 # Application definition
@@ -153,5 +152,7 @@ REST_FRAMEWORK = {
     ],
 
 }
+
+import django_heroku
 
 django_heroku.settings(locals())

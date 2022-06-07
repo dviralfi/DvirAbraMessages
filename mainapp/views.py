@@ -17,15 +17,17 @@ from django.core.exceptions import ObjectDoesNotExist
 
 # Django Rest Framework Imports
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status # For HTTP statuses
-from rest_framework.permissions import IsAuthenticated # For User Authentication
+from rest_framework.permissions import IsAuthenticated,AllowAny # For User Authentication
+
 
 
 # Basic IsAuthenticated(is the User is logged-in) implementation:
-permission_classes = [IsAuthenticated]
+#permission_classes = (IsAuthenticated,)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def get_all_messages(request, *args, **kwargs):
     '''
     Returns all Messages of the logged-in User.
@@ -55,6 +57,7 @@ def get_all_messages(request, *args, **kwargs):
 
 
 @api_view(["GET","DELETE"])
+@permission_classes([IsAuthenticated])
 def message(request, *args, **kwargs):
     '''
     Returns specific Message of the logged-in User.
@@ -103,9 +106,20 @@ def message(request, *args, **kwargs):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def write_message(request, *args, **kwargs):
     '''
     Send a New Message for the logged-in User.
+
+
+            The API works with JSON data. Example:
+
+            {
+            "sender": int id OR "user-name",
+            "receiver": int id OR "user-name" ,
+            "message_txt": "Message-Text",
+            "subject": "Message-Subject"
+            }
 
             Parameters:
                     request (HTTP Request) : contains various HTTP content, and in particular - 'data' which contains the New Message data to be sent.
@@ -120,11 +134,24 @@ def write_message(request, *args, **kwargs):
     receiver_id = request.data['receiver']
     sender_id = request.data['sender']
 
+    # Checks if the user input the name of the sender/receiver (and the DB works with the Users IDs)
+    if type(receiver_id)==str:
+        request.data['receiver'] = MessageUser.objects.get(username=request.data['receiver']).id
+        
+    if type(sender_id)==str:
+        request.data['sender'] =  MessageUser.objects.get(username=request.data['sender']).id
+    
+    # Updating the variables sender_id and receiver_id :
+    receiver_id = request.data['receiver']
+    sender_id = request.data['sender']
+        
+
     # checks if the username that want to send is logged in and the message is not from someone else to himself:
     if request.user.username != username or request.user.id != sender_id: 
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     #de-serialize the message that the user sent(in JSNO format) to Python friendly data - in orser to save it as a Message Model.
+
     message_serializer = MessageSerializer(data = request.data)
     message_dict = request.data
     
@@ -178,17 +205,27 @@ def get_unread_messages(request, *args, **kwargs):
     return Response(unread_messages.data)
 
 
-@api_view(["GET","POST"])
+@api_view(["POST"])
+@permission_classes([AllowAny])
 def create_user(request, *args, **kwargs):
-    if request.method == "GET":
-        return get_all_messages(request,args,kwargs)
+    """
+    Create a User to perform API requests with it!
+
+    Create user by JSON format:
+
+    {
+    "username": "your username here",
+    "password": "yourpasswordhere"
+    }
+
+    """   
 
     user_dict = request.data
-
+    print (user_dict)
     try:
 
-        user_object = MessageUser.objects.create_user(user_dict)
-        return Response(user_object.username,status=status.HTTP_201_CREATED)
+        user_object = MessageUser.objects.create_user(**user_dict)
+        return Response(status=status.HTTP_201_CREATED)
 
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)

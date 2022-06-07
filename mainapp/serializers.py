@@ -25,5 +25,5 @@ class MessageSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Message
-        fields = ['sender', 'receiver', 'message_txt', 'subject', 'creation_date']  # `is_read` attribute is not included - it's not required in the data, just for the back-end.
+        fields = ['sender', 'receiver', 'message_txt', 'subject', 'creation_date','is_read'] 
        

@@ -171,9 +171,11 @@ def write_message(request, *args, **kwargs):
         # Saves the message in the DB for the receiver:
         receiver_user_object.messages.add(message)
 
-        # Saves the message in the DB for the sender:
-        message.is_read = True # The sender obviously saw the message..
-        sender_user_object.messages.add(message)
+        # Saves duplicate of the message in the DB for the sender:
+        dup_message = Message(**message_dict)
+        dup_message.is_read = True # The sender obviously saw the message..
+        dup_message.save()
+        sender_user_object.messages.add(dup_message)
         
         return Response(message_serializer.data, status=status.HTTP_201_CREATED)
     else:    

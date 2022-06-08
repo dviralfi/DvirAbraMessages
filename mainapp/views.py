@@ -14,7 +14,6 @@ from mainapp.serializers import MessageSerializer # Custom Serializers
 #Django Imports
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from django.views.decorators.csrf import csrf_protect
 
 # Django Rest Framework Imports
 from rest_framework.response import Response
@@ -25,7 +24,6 @@ from rest_framework.permissions import IsAuthenticated,AllowAny # For User Authe
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-@csrf_protect
 def get_all_messages(request, *args, **kwargs):
     '''
     Returns all Messages of the logged-in User.
@@ -56,7 +54,6 @@ def get_all_messages(request, *args, **kwargs):
 
 @api_view(["GET","DELETE"])
 @permission_classes([IsAuthenticated])
-@csrf_protect
 def message(request, *args, **kwargs):
     '''
     Returns specific Message of the logged-in User.
@@ -108,7 +105,6 @@ def message(request, *args, **kwargs):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-@csrf_protect
 def write_message(request, *args, **kwargs):
     '''
     Send a New Message for the logged-in User.
@@ -186,7 +182,6 @@ def write_message(request, *args, **kwargs):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-@csrf_protect
 def get_unread_messages(request, *args, **kwargs):
     '''
     Returns all Unread Messages of the logged-in User.

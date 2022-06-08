@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'mainapp', # The mainapp for the rest framework messages system
     'rest_framework', # Django Rest Framwork - https://www.django-rest-framework.org/
+    'rest_framework.authtoken' # For TokenAuthentication 
 ]
 
 MIDDLEWARE = [
@@ -139,7 +140,6 @@ if DEBUG == False: # if the site is Deployed:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_HEADER_NAME = "X-CSRFToken" 
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -150,16 +150,14 @@ REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
 
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ],
 
 }
 
-LOGIN_REDIRECT_URL = "/"
+#LOGIN_REDIRECT_URL = "/"
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://dvir-abra-messages.herokuapp.com/'
-]
+
 
 import django_heroku
 

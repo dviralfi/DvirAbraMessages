@@ -12,4 +12,5 @@ urlpatterns = [
     path('<str:username>/messages/unread/', views.get_unread_messages, name='get_unread_messages'), # GET
 
     path('', views.create_user, name='create_user'), # POST
+
 ]

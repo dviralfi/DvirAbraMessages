@@ -166,8 +166,10 @@ def write_message(request, *args, **kwargs):
 
         # converts the message dictionary (that it makes by de-serialize the JSON data the user sent) to a Message Object(for saving it in the DB)
         message = Message(**message_dict)
+        message.is_read = False
         message.save()
 
+        
         # Saves the message in the DB for the receiver:
         receiver_user_object.messages.add(message)
 

@@ -139,6 +139,7 @@ if DEBUG == False: # if the site is Deployed:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CSRF_HEADER_NAME = "X-CSRFToken" 
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

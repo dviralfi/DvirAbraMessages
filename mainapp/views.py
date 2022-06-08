@@ -81,7 +81,7 @@ def message(request, *args, **kwargs):
         
         try:
             user_object = MessageUser.objects.get(username=username)
-            message = user_object.messages.get(id=id)
+            message = user_object.messages.all()[int(id)-1] # minus 1, Because the QuerySet using from-0 counting 
             message_serializer = MessageSerializer(message)
 
             message.is_read = True
@@ -91,6 +91,8 @@ def message(request, *args, **kwargs):
 
         except ObjectDoesNotExist:
             return Response(status=404)
+        except IndexError as i:
+            return Response(data={"The message not exist - message ID Out of Range":str(i)})
 
     elif request.method=='DELETE':
         

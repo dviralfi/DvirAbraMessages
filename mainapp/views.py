@@ -22,10 +22,6 @@ from rest_framework import status # For HTTP statuses
 from rest_framework.permissions import IsAuthenticated,AllowAny # For User Authentication
 
 
-
-# Basic IsAuthenticated(is the User is logged-in) implementation:
-#permission_classes = (IsAuthenticated,)
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_all_messages(request, *args, **kwargs):
@@ -98,7 +94,7 @@ def message(request, *args, **kwargs):
         
         try:
             user_object = MessageUser.objects.get(username=username)
-            message = user_object.messages.get(id=id)
+            message = user_object.messages.all()[int(id)-1]
             user_object.messages.remove(message)
             
             return Response(status=200)

@@ -165,17 +165,14 @@ def write_message(request, *args, **kwargs):
         message_dict["sender"] = sender_user_object
 
         # converts the message dictionary (that it makes by de-serialize the JSON data the user sent) to a Message Object(for saving it in the DB)
-        message = Message(**message_dict)
-        message.is_read = False
+        message = Message(**message_dict)        
         message.save()
-
         
         # Saves the message in the DB for the receiver:
         receiver_user_object.messages.add(message)
 
         # Saves the message in the DB for the sender:
         message.is_read = True # The sender obviously saw the message..
-        message.save()
         sender_user_object.messages.add(message)
         
         return Response(message_serializer.data, status=status.HTTP_201_CREATED)
@@ -223,10 +220,10 @@ def create_user(request, *args, **kwargs):
     """   
 
     user_dict = request.data
-    print (user_dict)
+
     try:
 
-        user_object = MessageUser.objects.create_user(**user_dict)
+        MessageUser.objects.create_user(**user_dict)
         return Response(status=status.HTTP_201_CREATED)
 
     except IntegrityError:

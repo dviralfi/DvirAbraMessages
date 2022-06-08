@@ -115,8 +115,8 @@ def write_message(request, *args, **kwargs):
             The API works with JSON data. Example:
 
             {
-            "sender": int id OR "user-name",
-            "receiver": int id OR "user-name" ,
+            "sender": "your-user-name",
+            "receiver": "user-name" ,
             "message_txt": "Message-Text",
             "subject": "Message-Subject"
             }

@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ["ABRA_MESSAGES_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["https://dvir-abra-messages.herokuapp.com/","localhost"]
 
@@ -155,6 +155,10 @@ REST_FRAMEWORK = {
 }
 
 LOGIN_REDIRECT_URL = "/"
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://dvir-abra-messages.herokuapp.com/'
+]
 
 import django_heroku
 

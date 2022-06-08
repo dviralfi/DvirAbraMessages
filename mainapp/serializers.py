@@ -1,7 +1,3 @@
-from mainapp.models import Message
-from rest_framework import serializers 
-
-
 """
 This is the Serializers file.
 
@@ -11,6 +7,9 @@ I used the default Serializers Class that 3rd party package rest_framwork(Django
 
 """
 
+
+from mainapp.models import Message
+from rest_framework import serializers 
 
 class MessageSerializer(serializers.ModelSerializer):
     """
@@ -26,4 +25,3 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['sender', 'receiver', 'message_txt', 'subject', 'creation_date','is_read'] 
-       

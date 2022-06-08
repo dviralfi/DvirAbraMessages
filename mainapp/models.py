@@ -67,20 +67,3 @@ class MessageUser(AbstractUser):
     in this project case - I added the `messages` as a ManyToMany Field.
     """
     messages = models.ManyToManyField(Message)
-
-
-
-
-
-
-
-
-        
-
-
-    
-    """
-    def get_user_messages(self):
-        messages = Message.objects.filter(Q(sender=self.id)|Q(receiver=self.id))
-        return messages
-    """

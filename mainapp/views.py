@@ -3,7 +3,7 @@ The Views File which contains the views that will execute from the urls endpoint
 -------------
 
 The decorators in each view function e.g. @api_view(["GET"]),
-is for the view function to accept only specific HTTP Requests.
+is for the view function to accept only specific HTTP Requests, or to provide an Authentication barrier.
 
 """
 
@@ -12,12 +12,13 @@ from mainapp.models import Message, MessageUser # Custom Models
 from mainapp.serializers import MessageSerializer # Custom Serializers
 
 #Django Imports
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
+from django.core.exceptions import ObjectDoesNotExist  # Exception if the object is not exist
+
+from django.db import IntegrityError # Exception if the username is already taken
 
 # Django Rest Framework Imports
 from rest_framework.response import Response
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view,permission_classes # For DjangorestFramework Decorators
 from rest_framework import status # For HTTP statuses
 from rest_framework.permissions import IsAuthenticated,AllowAny # For User Authentication
 
@@ -170,7 +171,7 @@ def write_message(request, *args, **kwargs):
         receiver_user_object.messages.add(message)
 
         # Saves duplicate of the message in the DB for the sender:
-        dup_message = Message(**message_dict)
+        dup_message = Message(**message_dict) # the ** mark tells the Model to parse the dict as args
         dup_message.is_read = True # The sender obviously saw the message..
         dup_message.save()
         sender_user_object.messages.add(dup_message)
@@ -229,6 +230,6 @@ def create_user(request, *args, **kwargs):
 
     except IntegrityError:
         return Response(data={"User Name is Already Taken"},status=status.HTTP_409_CONFLICT)
+
     except Exception as e:
-        print(e)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(e,status=status.HTTP_400_BAD_REQUEST)

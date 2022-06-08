@@ -23,10 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
+# The SECRET_KEY is save to my pc as an environment variable, and django_heroku is managing the fetching of the value when deploying to Heroku App.
 SECRET_KEY = os.environ["ABRA_MESSAGES_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["https://dvir-abra-messages.herokuapp.com/","localhost"]
 
@@ -140,7 +141,7 @@ if DEBUG == False: # if the site is Deployed:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+# Django Rest Framework Settings:
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -155,10 +156,7 @@ REST_FRAMEWORK = {
 
 }
 
-#LOGIN_REDIRECT_URL = "/"
-
-
-
 import django_heroku
 
+# django_heroku package makes the environment variables available in Heroku, and in particular the SECRET_KEY var.
 django_heroku.settings(locals())

@@ -15,9 +15,8 @@ urlpatterns = [
     path('', include('mainapp.urls')),
 ]
 
-# Adding api-login page to the urlpatterns for users to log in.
-# Using the rest_framework package that provide it. 
+# Adding a login page to the urlpatterns for users to log in.
+
 urlpatterns += [
-    #path('api-auth/', include("rest_framework.urls")),
-    path('login/', obtain_auth_token, name="obtain-auth-token"),
+    path('login/', obtain_auth_token, name="obtain-auth-token"), # POST request to this url with the appropriate credentials, will return the Secret Auth TOKEN each user have.
 ]

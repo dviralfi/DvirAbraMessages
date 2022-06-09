@@ -1,0 +1,606 @@
+{
+	"info": {
+		"_postman_id": "bb99bab2-a523-45ff-b402-3df81f5dd528",
+		"name": "Abra Home Assignment Messages REST API",
+		"description": "# Messaging system rest API\n\nThis **rest API** contains :\n\n*   Write message\n*   Get all messages for a specific user\n*   Get all unread messages for a specific user\n*   Read message (return one message by message ID)\n*   Delete message (as owner or as receiver)\n    \n\nNote: in the Tests field there is a *JS* script that fetch the user secret token that returns from the *Login Request* and put its value into an enironment variable called `access_token` for the use in this API of TokenAuthentication.\n\n**Make Sure** you are in an *Environment* with a variable `access_token` !!",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21323211"
+	},
+	"item": [
+		{
+			"name": "User Registeration",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"username\": \"username\",\r\n\"password\": \"password\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dvir-abra-messages.herokuapp.com/",
+					"protocol": "https",
+					"host": [
+						"dvir-abra-messages",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						""
+					]
+				},
+				"description": "*Make sure you are in an* ***Environment*** *.*\n\nCreate a User to perform API requests with it!\n\nThe User Creation Form is in JSON format in the 'Body' field, looks like this:\n\n{  \n\"username\": \"your username here\",  \n\"password\": \"yourpasswordhere\"  \n}\n\nSend the request, and if your username is not already taken(you'll be inform if so..) your user is created !!\n\nyou will get status 201 created."
+			},
+			"response": [
+				{
+					"name": "User Registeration",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"username\": \"test\",\r\n\"password\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://dvir-abra-messages.herokuapp.com/",
+							"protocol": "https",
+							"host": [
+								"dvir-abra-messages",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "User Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = JSON.parse(responseBody);\r",
+							"pm.environment.set(\"access_token\",jsonData.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"username\",\r\n    \"password\":\"password\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "dvir-abra-messages.herokuapp.com/login/",
+					"host": [
+						"dvir-abra-messages",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"login",
+						""
+					]
+				},
+				"description": "*Make sure you are in an* ***Environment*** *.*\n\n*   Fill the form with your credentials in the *Body* field in JSON format.\n*   Send the request\n    \n\nThe response should look like that:\n\n{\n\n\"token\": \"5179bbd702333d8a81d7353f475c3284d47\"\n\n}\n\nThat means your are good to go!\n\nNow you can use the API with your user name as described in the other requests in this collection.\n\n**Make sure** not to close your *Login Request* Tab, or your AuthenticationToken will be erased..\n\n(that's actually the way of loggin out of the user..)"
+			},
+			"response": [
+				{
+					"name": "User Login",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"test\",\r\n    \"password\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "dvir-abra-messages.herokuapp.com/login/",
+							"host": [
+								"dvir-abra-messages",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"login",
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Get All User Messages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "Token {{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Authorization",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dvir-abra-messages.herokuapp.com/username/messages/",
+					"protocol": "https",
+					"host": [
+						"dvir-abra-messages",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"username",
+						"messages",
+						""
+					]
+				},
+				"description": "*Make sure you are in an* ***Environment*** *.*\n\n*   In the url - replace 'username' with your actual username\n*   Send the request\n    \n\nIn case everything goes well you'll get status 200 OK\n\nIf you try to reach ohter user's messages - you''l get a status 401 unauthorized"
+			},
+			"response": [
+				{
+					"name": "Get All User Messages",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://dvir-abra-messages.herokuapp.com/test/messages/",
+							"protocol": "https",
+							"host": [
+								"dvir-abra-messages",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"test",
+								"messages",
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Get Specific Message",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "Token {{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Authorization",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dvir-abra-messages.herokuapp.com/username/messages/1/",
+					"protocol": "https",
+					"host": [
+						"dvir-abra-messages",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"username",
+						"messages",
+						"1",
+						""
+					]
+				},
+				"description": "*Make sure you are in an* ***Environment*** *.*\n\nEndFragment\n\n*   In the url - replace 'username' with your actual username, and the number of message you want to see(the message isordered by it creation date)\n    \n\n*   Send the request\n    \n\nIn case everything goes well you'll get status 200 OK\n\nIf you try to reach ohter user's message - you''l get a status 401 unauthorized"
+			},
+			"response": [
+				{
+					"name": "Get Specific Message",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRFToken",
+								"value": "{{csrftoken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://dvir-abra-messages.herokuapp.com/test/messages/1/",
+							"protocol": "https",
+							"host": [
+								"dvir-abra-messages",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"test",
+								"messages",
+								"1",
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Get All Unread Messages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "Token {{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Authorization",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dvir-abra-messages.herokuapp.com/username/messages/unread/",
+					"protocol": "https",
+					"host": [
+						"dvir-abra-messages",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"username",
+						"messages",
+						"unread",
+						""
+					]
+				},
+				"description": "*Make sure you are in an* ***Environment*** *.*\n\n*   In the url - replace 'username' with your actual username\n*   Send the request\n    \n\nIn case everything goes well you'll get status 200 OK\n\nIf you try to reach ohter user's messages - you''l get a status 401 unauthorized"
+			},
+			"response": [
+				{
+					"name": "Get All Unread Messages",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRFToken",
+								"value": "{{csrftoken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://dvir-abra-messages.herokuapp.com/test/messages/unread/",
+							"protocol": "https",
+							"host": [
+								"dvir-abra-messages",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"test",
+								"messages",
+								"unread",
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Write New Message",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "Token {{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Authorization",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"sender\": \"username\",\r\n\"receiver\": \"username2\" ,\r\n\"message_txt\": \"Message-Text\",\r\n\"subject\": \"Message-Subject\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dvir-abra-messages.herokuapp.com/username/messages/write/",
+					"protocol": "https",
+					"host": [
+						"dvir-abra-messages",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"username",
+						"messages",
+						"write",
+						""
+					]
+				},
+				"description": "*Make sure you are in an* ***Environment*** *.*\n\nIn the *Body field you have a* JSON format template to write a new message:\n\n{\n\n\"sender\": \"your-user-name\",\n\n\"receiver\": \"user-name\" ,\n\n\"message_txt\": \"Message-Text\",\n\n\"subject\": \"Message-Subject\"\n\n}\n\nSend the request, and if everything goes well, the message will be redirected to you ."
+			},
+			"response": [
+				{
+					"name": "Write New Message",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"sender\": \"test\",\r\n\"receiver\": \"test2\" ,\r\n\"message_txt\": \"Hello World! How is everybody? :)\",\r\n\"subject\": \"Hello World!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://dvir-abra-messages.herokuapp.com/test/messages/write/",
+							"protocol": "https",
+							"host": [
+								"dvir-abra-messages",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"test",
+								"messages",
+								"write",
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Delete Specific Message",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "Token {{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Authorization",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://dvir-abra-messages.herokuapp.com/username/messages/1/",
+					"protocol": "https",
+					"host": [
+						"dvir-abra-messages",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"username",
+						"messages",
+						"1",
+						""
+					]
+				},
+				"description": "Same as getting specific message, but with a DELETE request"
+			},
+			"response": [
+				{
+					"name": "Delete Specific Message",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://dvir-abra-messages.herokuapp.com/test/messages/1/",
+							"protocol": "https",
+							"host": [
+								"dvir-abra-messages",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"test",
+								"messages",
+								"1",
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"value": "",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}

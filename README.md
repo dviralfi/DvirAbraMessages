@@ -20,7 +20,7 @@ The rest API should contains :
 - Delete message (as owner or as receiver)
 
 ### Hosted Server
-[Heroku Site](dvir-abra-messages.herokuapp.com)
+[Heroku Site](https://dvir-abra-messages.herokuapp.com/)
 
 
 Written by *Dvir Alfi* .

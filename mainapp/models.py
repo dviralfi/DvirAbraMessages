@@ -67,3 +67,6 @@ class MessageUser(AbstractUser):
     in this project case - I added the `messages` as a ManyToMany Field.
     """
     messages = models.ManyToManyField(Message)
+
+    def __str__(self):
+        return self.username

@@ -47,6 +47,8 @@ def get_all_messages(request, *args, **kwargs):
         user_object = MessageUser.objects.get(username=username)
     except MessageUser.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND) 
+    except Exception as e:
+        return Response(e)
     
     all_messages = MessageSerializer(user_object.messages.all(),many=True)
 
@@ -88,8 +90,11 @@ def message(request, *args, **kwargs):
 
         except ObjectDoesNotExist:
             return Response(status=404)
+
         except IndexError as i:
             return Response(data={"The message not exist - message ID Out of Range":str(i)})
+        except Exception as e:
+            return Response(e)
 
     elif request.method=='DELETE':
         
@@ -102,6 +107,9 @@ def message(request, *args, **kwargs):
 
         except ObjectDoesNotExist:
             return Response(status=404)
+
+        except Exception as e:
+            return Response(e)
 
 
 @api_view(["POST"])
@@ -129,24 +137,11 @@ def write_message(request, *args, **kwargs):
                     Json Response (Json): if valid - returns the New Message that has been sent with a HTTP_201_CREATED status, if not - returns Http-Error Response
     '''
     # Gets the essential data
-    username = kwargs["username"]
-    receiver_id = request.data['receiver']
-    sender_id = request.data['sender']
-
-    # Checks if the user input the name of the sender/receiver (and the DB works with the Users IDs)
-    if type(receiver_id)==str:
-        request.data['receiver'] = MessageUser.objects.get(username=request.data['receiver']).id
-        
-    if type(sender_id)==str:
-        request.data['sender'] =  MessageUser.objects.get(username=request.data['sender']).id
-    
-    # Updating the variables sender_id and receiver_id :
-    receiver_id = request.data['receiver']
-    sender_id = request.data['sender']
-        
+    receiver_name = request.data['receiver']
+    sender_name = request.data['sender']
 
     # checks if the username that want to send is logged in and the message is not from someone else to himself:
-    if request.user.username != username or request.user.id != sender_id: 
+    if request.user.username != sender_name: 
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     #de-serialize the message that the user sent(in JSNO format) to Python friendly data - in orser to save it as a Message Model.
@@ -156,8 +151,8 @@ def write_message(request, *args, **kwargs):
     
     if message_serializer.is_valid():
         # gets the Users Objects
-        receiver_user_object = MessageUser.objects.get(id=receiver_id)
-        sender_user_object = MessageUser.objects.get(id=sender_id)
+        receiver_user_object = MessageUser.objects.get(username=receiver_name)
+        sender_user_object = MessageUser.objects.get(username=sender_name)
 
         #replacing the ID's in the message that the user sent - with actual User Object - for Django to bind it with the coressponding ForiegnKey - MessageUser:
         message_dict["receiver"] = receiver_user_object
@@ -199,11 +194,14 @@ def get_unread_messages(request, *args, **kwargs):
 
     if request.user.username != username:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        user_object = MessageUser.objects.get(username=username)
+        unread_messages = MessageSerializer(user_object.messages.filter(is_read=False), many=True)
+            
+        return Response(unread_messages.data)
 
-    user_object = MessageUser.objects.get(username=username)
-    unread_messages = MessageSerializer(user_object.messages.filter(is_read=False), many=True)
-        
-    return Response(unread_messages.data)
+    except Exception as e:
+        return Response(e)
 
 
 @api_view(["POST"])
@@ -232,4 +230,4 @@ def create_user(request, *args, **kwargs):
         return Response(data={"User Name is Already Taken"},status=status.HTTP_409_CONFLICT)
 
     except Exception as e:
-        return Response(e,status=status.HTTP_400_BAD_REQUEST)
+        return Response(e)

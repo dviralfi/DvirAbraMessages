@@ -13,7 +13,6 @@ from mainapp.serializers import MessageSerializer # Custom Serializers
 
 #Django Imports
 from django.core.exceptions import ObjectDoesNotExist  # Exception if the object is not exist
-
 from django.db import IntegrityError # Exception if the username is already taken
 
 # Django Rest Framework Imports
@@ -29,20 +28,22 @@ def get_all_messages(request, *args, **kwargs):
     '''
     Returns all Messages of the logged-in User.
 
-            Parameters:
-                    request (HTTP Request) : contains various HTTP content 
-                    *args (possible non-keyword arguments)
-                    *kwargs (possible keyword arguments) : contains the username in the endpoint (for example: /user1/messages) user1 is the username)
+    Parameters:
+        request (HTTP Request) : contains various HTTP content 
+        *args (possible non-keyword arguments)
+        *kwargs (possible keyword arguments) : contains the username in the endpoint (for example: /user1/messages) user1 is the username)
 
-            Returns:
-                    Json Response (Json): if valid - returns the messages, if not - returns Http-Error Response
+    Returns:
+            Json Response (Json): if valid - returns the messages, if not - returns Http-Error Response
     '''
 
     username = kwargs["username"]
 
+    # Check if the user is trying to read other user messages:
     if request.user.username != username:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
     
+    #try to fetch the User Object:
     try:
         user_object = MessageUser.objects.get(username=username)
     except MessageUser.DoesNotExist:
@@ -50,6 +51,7 @@ def get_all_messages(request, *args, **kwargs):
     except Exception as e:
         return Response(e)
     
+    # Getting the messages of the user - and serialized them into JSON data that can be sent as a response
     all_messages = MessageSerializer(user_object.messages.all(),many=True)
 
     return Response(all_messages.data)
@@ -61,13 +63,13 @@ def message(request, *args, **kwargs):
     '''
     Returns specific Message of the logged-in User.
 
-            Parameters:
-                    request (HTTP Request) : contains various HTTP content 
-                    *args (possible non-keyword arguments)
-                    *kwargs (possible keyword arguments) : contains the username and the ID of the message in the endpoint (for example: /user1/messages/3) user1 is the username and 3 is the message ID)
+    Parameters:
+            request (HTTP Request) : contains various HTTP content 
+            *args (possible non-keyword arguments)
+            *kwargs (possible keyword arguments) : contains the username and the ID of the message in the endpoint (for example: /user1/messages/3) user1 is the username and 3 is the message ID)
 
-            Returns:
-                    Json Response (Json): if valid - returns the message, if not - returns Http-Error Response
+    Returns:
+            Json Response (Json): if valid - returns the message, if not - returns Http-Error Response
     '''
 
     id = kwargs['id']
@@ -76,7 +78,7 @@ def message(request, *args, **kwargs):
     if request.user.username != username:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    if request.method=='GET':
+    if request.method=='GET':  
         
         try:
             user_object = MessageUser.objects.get(username=username)
@@ -96,7 +98,7 @@ def message(request, *args, **kwargs):
         except Exception as e:
             return Response(e)
 
-    elif request.method=='DELETE':
+    elif request.method=='DELETE': 
         
         try:
             user_object = MessageUser.objects.get(username=username)
@@ -118,38 +120,36 @@ def write_message(request, *args, **kwargs):
     '''
     Send a New Message for the logged-in User.
 
+    The API works with JSON data. Example:
 
-            The API works with JSON data. Example:
+    {
+    "sender": "your-user-name",
+    "receiver": "user-name" ,
+    "message_txt": "Message-Text",
+    "subject": "Message-Subject"
+    }
 
-            {
-            "sender": "your-user-name",
-            "receiver": "user-name" ,
-            "message_txt": "Message-Text",
-            "subject": "Message-Subject"
-            }
+    Parameters:
+            request (HTTP Request) : contains various HTTP content, and in particular - 'data' which contains the New Message data to be sent.
+            *args (possible non-keyword arguments)
+            *kwargs (possible keyword arguments) : contains the username in the endpoint (for example: /user1/messages) user1 is the username)
 
-            Parameters:
-                    request (HTTP Request) : contains various HTTP content, and in particular - 'data' which contains the New Message data to be sent.
-                    *args (possible non-keyword arguments)
-                    *kwargs (possible keyword arguments) : contains the username in the endpoint (for example: /user1/messages) user1 is the username)
-
-            Returns:
-                    Json Response (Json): if valid - returns the New Message that has been sent with a HTTP_201_CREATED status, if not - returns Http-Error Response
+    Returns:
+            Json Response (Json): if valid - returns the New Message that has been sent with a HTTP_201_CREATED status, if not - returns Http-Error Response
     '''
-    # Gets the essential data
+
     receiver_name = request.data['receiver']
     sender_name = request.data['sender']
     message_dict = request.data 
 
-    # checks if the username that want to send is logged in and the message is not from someone else to himself:
     if request.user.username != sender_name: 
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    # Replace the usernames into id(its primary key for a valid de-Serialization )
+    # Replace the usernames strings to IDs (user's primary key for a valid de-Serialization )
     request.data['receiver'] = MessageUser.objects.get(username=receiver_name).id
     request.data['sender'] = MessageUser.objects.get(username=sender_name).id
 
-    #de-serialize the message that the user sent(in JSNO format) to Python friendly data - in orser to save it as a Message Model.
+    #de-serialize the message that the user sent(in JSNO format) to Python friendly data - in order to save it as a Message Model.
     message_serializer = MessageSerializer(data = request.data)
     
     if message_serializer.is_valid():
@@ -185,21 +185,22 @@ def get_unread_messages(request, *args, **kwargs):
     '''
     Returns all Unread Messages of the logged-in User.
 
-            Parameters:
-                    request (HTTP Request) : contains various HTTP content 
-                    *args (possible non-keyword arguments)
-                    *kwargs (possible keyword arguments) : contains the username in the endpoint (for example: /user1/messages) user1 is the username)
+    Parameters:
+            request (HTTP Request) : contains various HTTP content 
+            *args (possible non-keyword arguments)
+            *kwargs (possible keyword arguments) : contains the username in the endpoint (for example: /user1/messages) user1 is the username)
 
-            Returns:
-                    Json Response (Json): if valid - returns the unread messages, if not - returns Http-Error Response
+    Returns:
+            Json Response (Json): if valid - returns the unread messages, if not - returns Http-Error Response
     '''
+
     username = kwargs["username"]
 
     if request.user.username != username:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
     try:
         user_object = MessageUser.objects.get(username=username)
-        unread_messages = MessageSerializer(user_object.messages.filter(is_read=False), many=True)
+        unread_messages = MessageSerializer(user_object.messages.filter(is_read=False), many=True) # Filter the messages by the `is_read` boolean field to get only the unread messages
             
         return Response(unread_messages.data)
 
@@ -213,7 +214,7 @@ def create_user(request, *args, **kwargs):
     """
     Create a User to perform API requests with it!
 
-    Create user by JSON format:
+    The JSON format:
 
     {
     "username": "your username here",
@@ -234,3 +235,4 @@ def create_user(request, *args, **kwargs):
 
     except Exception as e:
         return Response(e)
+        

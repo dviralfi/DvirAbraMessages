@@ -139,15 +139,18 @@ def write_message(request, *args, **kwargs):
     # Gets the essential data
     receiver_name = request.data['receiver']
     sender_name = request.data['sender']
+    message_dict = request.data 
 
     # checks if the username that want to send is logged in and the message is not from someone else to himself:
     if request.user.username != sender_name: 
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    #de-serialize the message that the user sent(in JSNO format) to Python friendly data - in orser to save it as a Message Model.
+    # Replace the usernames into id(its primary key for a valid de-Serialization )
+    request.data['receiver'] = MessageUser.objects.get(username=receiver_name).id
+    request.data['sender'] = MessageUser.objects.get(username=sender_name).id
 
+    #de-serialize the message that the user sent(in JSNO format) to Python friendly data - in orser to save it as a Message Model.
     message_serializer = MessageSerializer(data = request.data)
-    message_dict = request.data
     
     if message_serializer.is_valid():
         # gets the Users Objects

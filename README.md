@@ -1,9 +1,10 @@
 # Messaging system - Dvir Alafi
-### abra Web & Mobile Home Assignment
+### Abra Web & Mobile
 
-The task is to write a simple rest API backend system that is responsible for handling
+A simple rest API backend system that is responsible for handling
 messages between users.
-a message contains :
+
+A message contains :
 1. sender (owner)
 2. Receiver
 3. Message
@@ -18,5 +19,8 @@ The rest API should contains :
 - Read message (return one message)
 - Delete message (as owner or as receiver)
 
-Written by *Dvir Alfi* .
+### Hosted Server
+[Heroku Site](dvir-abra-messages.herokuapp.com)
 
+
+Written by *Dvir Alfi* .

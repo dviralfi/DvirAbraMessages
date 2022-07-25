@@ -1,4 +1,4 @@
-# Messaging system - Dvir Alafi
+# REST API Messaging system - Dvir Alafi
 
 
 A simple rest API backend system that is responsible for handling
@@ -12,7 +12,7 @@ A message contains :
 5. creation date
 
 
-The rest API should contains :
+The rest API contains :
 - Write message
 - Get all messages for a specific user
 - Get all unread messages for a specific user
@@ -23,4 +23,4 @@ The rest API should contains :
 [Heroku Site](https://dvir-abra-messages.herokuapp.com/)
 
 
-Written by *Dvir Alfi* .
+Written in Django, and Django-rest-framwork.
